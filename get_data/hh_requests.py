@@ -2,7 +2,7 @@ import html2text
 import requests
 import pandas as pd
 
-response = requests.get("https://api.hh.ru/vacancies?text='motion designer'&period=5").json()
+#response = requests.get("https://api.hh.ru/vacancies?text='motion designer'&period=5").json()
 
 def vacancy_keyword_check(keyword : str, df : pd.DataFrame, period = 5):
     response = requests.get("https://api.hh.ru/vacancies?text='{}'&period={}".format(keyword, period)).json()
@@ -32,10 +32,14 @@ def update_vacancies_description(df : pd.DataFrame, html=html2text.HTML2Text()):
         if (df["have full descript"].iloc[i] != df["have full descript"].iloc[i]):  #checking for NaN
             id = df["id"].iloc[i]
             vacancy = requests.get("https://api.hh.ru/vacancies/"+ id).json()
+
+            df["logs"] = ""
+            df["under consideration"] = 0
+            df["status"] = "unchecked"
+
             df["description"].iloc[i] = html.handle(vacancy["description"])
             df["have full descript"].iloc[i] = 1
-            df["under consideration"].iloc[i] = 0
-            df["checked"].iloc[i] = 0
+            
             if not is_nan_or_empty(df["snippet.requirement"].iloc[i]):
                 df["snippet.requirement"].iloc[i] = html.handle(df["snippet.requirement"].iloc[i])
             if not is_nan_or_empty(df["snippet.responsibility"].iloc[i]):
